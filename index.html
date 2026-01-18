@@ -8,10 +8,9 @@
 body{
   margin:0;
   font-family: Arial, sans-serif;
-  background: #0b1220;
+  background:#0b1220;
   color:white;
   text-align:center;
-  overflow-x:hidden;
 }
 header{
   background:#101a33;
@@ -20,38 +19,18 @@ header{
   font-weight:bold;
 }
 .balance{
-  margin:15px;
+  margin:10px;
   font-size:18px;
 }
-.game-container{
-  position: relative;
-  width: 90%;
-  height: 300px;
-  margin: 20px auto;
-  border:1px solid #555;
-  border-radius:12px;
+canvas{
   background:#101a33;
-  overflow:hidden;
-}
-#plane{
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size:40px;
-}
-#multText{
-  position: absolute;
-  top:10px;
-  left:50%;
-  transform: translateX(-50%);
-  font-size:36px;
-  font-weight:bold;
-  color:#00ff99;
-  text-shadow: 1px 1px 4px black;
+  border:1px solid #555;
+  display:block;
+  margin:20px auto;
+  border-radius:10px;
 }
 button{
-  padding:15px 30px;
+  padding:12px 25px;
   font-size:18px;
   margin:10px;
   border:none;
@@ -68,17 +47,13 @@ button{
 }
 </style>
 </head>
-
 <body>
 
 <header>🎮 God-Level Aviator Demo</header>
 
 <div class="balance">Balance: <span id="bal">1000</span> Coins</div>
 
-<div class="game-container">
-  <div id="plane">✈️</div>
-  <div id="multText">x1.00</div>
-</div>
+<canvas id="gameCanvas" width="360" height="300"></canvas>
 
 <button class="startBtn" onclick="startGame()">START</button>
 <button class="cashoutBtn" onclick="cashOut()">CASH OUT</button>
@@ -95,46 +70,80 @@ let balance = 1000;
 let running = false;
 let multiplier = 1.0;
 let crashAt = 0;
-let interval;
+let animationFrame;
+let points = [];
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
 function startGame(){
-    if(running) return;
-    running = true;
-    multiplier = 1.0;
-    crashAt = (Math.random() * 6 + 1.5).toFixed(2); // crash 1.5–7.5x
-    document.getElementById("multText").innerText = "x"+multiplier.toFixed(2);
-    document.getElementById("plane").style.bottom = "0px";
-    document.getElementById("startSound").play();
+  if(running) return;
+  running = true;
+  multiplier = 1.0;
+  points = [];
+  crashAt = (Math.random() * 6 + 1.5).toFixed(2); // random crash 1.5–7.5x
+  document.getElementById("startSound").play();
+  animate();
+}
 
-    interval = setInterval(() => {
-        multiplier += 0.05; // smooth rise
-        document.getElementById("multText").innerText = "x"+multiplier.toFixed(2);
+function animate(){
+  if(!running) return;
 
-        // Plane movement
-        let planeBottom = multiplier * 40 + Math.sin(multiplier*5)*10; // smooth wavy animation
-        document.getElementById("plane").style.bottom = planeBottom+"px";
+  // increment multiplier
+  multiplier += 0.05;
+  points.push(multiplier);
 
-        // Random crash
-        if(multiplier.toFixed(2) >= crashAt){
-            clearInterval(interval);
-            alert("💥 Crashed at x"+crashAt+"! You LOSE 100");
-            balance -= 100;
-            document.getElementById("bal").innerText = balance;
-            running = false;
-            document.getElementById("crashSound").play();
-        }
-    }, 100); // faster for smooth animation
+  // check crash
+  if(multiplier.toFixed(2) >= crashAt){
+    running = false;
+    cancelAnimationFrame(animationFrame);
+    drawGraph(true); // draw final crash
+    alert("💥 Crashed at x"+crashAt+"! You LOSE 100");
+    balance -= 100;
+    document.getElementById("bal").innerText = balance;
+    document.getElementById("crashSound").play();
+    return;
+  }
+
+  drawGraph(false);
+  animationFrame = requestAnimationFrame(animate);
 }
 
 function cashOut(){
-    if(!running) return;
-    clearInterval(interval);
-    let win = Math.floor(100 * multiplier);
-    balance += win;
-    document.getElementById("bal").innerText = balance;
-    running = false;
-    alert("💰 Cashed out at x"+multiplier.toFixed(2)+"! You WIN "+win);
-    document.getElementById("cashoutSound").play();
+  if(!running) return;
+  running = false;
+  cancelAnimationFrame(animationFrame);
+  let win = Math.floor(100 * multiplier);
+  balance += win;
+  document.getElementById("bal").innerText = balance;
+  alert("💰 Cashed out at x"+multiplier.toFixed(2)+"! You WIN "+win);
+  document.getElementById("cashoutSound").play();
+}
+
+function drawGraph(crashed){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  ctx.beginPath();
+  ctx.moveTo(0, canvas.height - 20);
+  for(let i=0;i<points.length;i++){
+    let x = i*10;
+    let y = canvas.height - points[i]*30;
+    ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = crashed ? "red" : "#00ff99";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // draw plane
+  let planeX = (points.length-1)*10;
+  let planeY = canvas.height - points[points.length-1]*30;
+  ctx.font = "30px Arial";
+  ctx.fillText("✈️", planeX, planeY);
+
+  // draw multiplier text
+  ctx.font = "20px Arial";
+  ctx.fillStyle = "#00ff99";
+  ctx.fillText("x"+multiplier.toFixed(2), planeX-15, planeY-20);
 }
 </script>
 
