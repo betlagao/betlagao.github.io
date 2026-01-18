@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aviator Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{margin:0;font-family:Arial;background:#0b1220;color:white;text-align:center;}
+header{padding:20px;font-size:24px;background:#101a33;}
+.balance{margin:15px;font-size:18px;}
+.multiplier{font-size:60px;margin:30px;}
+button{padding:12px 25px;font-size:18px;margin:10px;border:none;border-radius:12px;cursor:pointer;}
+.startBtn{background:#00ff99;color:#000;}
+.cashoutBtn{background:#ff3d00;color:#fff;}
+.footer{margin-top:30px;font-size:12px;opacity:0.7;}
+</style>
+</head>
+<body>
+
+<header>🎮 Aviator Demo Game</header>
+<div class="balance">Balance: <span id="bal">1000</span> Coins</div>
+<div class="multiplier" id="mult">x1.00</div>
+<button class="startBtn" onclick="startGame()">START</button>
+<button class="cashoutBtn" onclick="cashOut()">CASH OUT</button>
+<div class="footer">⚠️ Demo only – No real money</div>
+
+<script>
+let balance = 1000;
+let running = false;
+let multiplier = 1.0;
+let crashAt = 0;
+let interval;
+
+function startGame(){
+    if(running) return;
+    running = true;
+    multiplier = 1.0;
+    crashAt = (Math.random() * 5 + 1).toFixed(2); // random crash 1–6x
+    document.getElementById("mult").innerText = "x"+multiplier.toFixed(2);
+
+    interval = setInterval(() => {
+        multiplier += 0.1;
+        document.getElementById("mult").innerText = "x"+multiplier.toFixed(2);
+        if(multiplier.toFixed(2) >= crashAt){
+            clearInterval(interval);
+            alert("💥 Crashed at x"+crashAt+"! You LOSE 100");
+            balance -= 100;
+            document.getElementById("bal").innerText = balance;
+            running = false;
+        }
+    }, 300);
+}
+
+function cashOut(){
+    if(!running) return;
+    clearInterval(interval);
+    let win = Math.floor(100 * multiplier);
+    balance += win;
+    alert("💰 Cashed out at x"+multiplier.toFixed(2)+"! You WIN "+win);
+    document.getElementById("bal").innerText = balance;
+    running = false;
+}
+</script>
+
+</body>
+</html>
