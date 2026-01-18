@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Big Small Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#0b1220;
+  color:white;
+  text-align:center;
+}
+header{
+  background:#101a33;
+  padding:15px;
+  font-size:22px;
+  font-weight:bold;
+}
+.balance{
+  margin:15px;
+  font-size:18px;
+}
+.number{
+  font-size:70px;
+  margin:20px 0;
+}
+.buttons{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+}
+button{
+  padding:15px 30px;
+  font-size:18px;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+}
+.big{
+  background:#00ff99;
+}
+.small{
+  background:#ff4d4d;
+  color:white;
+}
+.footer{
+  margin-top:30px;
+  font-size:12px;
+  opacity:0.7;
+}
+</style>
+</head>
+
+<body>
+
+<header>🎮 BIG‑SMALL DEMO GAME</header>
+
+<div class="balance">
+Balance: <span id="bal">1000</span> Coins
+</div>
+
+<div class="number" id="num">?</div>
+
+<div class="buttons">
+<button class="big" onclick="play('big')">BIG</button>
+<button class="small" onclick="play('small')">SMALL</button>
+</div>
+
+<div class="footer">
+⚠️ Demo only • No real money
+</div>
+
+<script>
+let balance = 1000;
+
+function play(choice){
+  let number = Math.floor(Math.random() * 10); // 0‑9
+  document.getElementById("num").innerText = number;
+
+  if(choice === "big" && number >= 5){
+    balance += 100;
+    alert("WIN +100");
+  }
+  else if(choice === "small" && number < 5){
+    balance += 100;
+    alert("WIN +100");
+  }
+  else{
+    balance -= 100;
+    alert("LOSE -100");
+  }
+
+  document.getElementById("bal").innerText = balance;
+}
+</script>
+
+</body>
+  </html>
