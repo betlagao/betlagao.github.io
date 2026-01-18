@@ -204,4 +204,141 @@ function cashOut(){
 </script>
 
 </body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pro Aviator Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: #0b1220;
+  color: white;
+  text-align: center;
+}
+header{
+  background:#101a33;
+  padding:20px;
+  font-size:24px;
+}
+.balance{
+  margin:15px;
+  font-size:18px;
+}
+.game-container{
+  position: relative;
+  width: 90%;
+  height: 300px;
+  margin: 20px auto;
+  border:1px solid #555;
+  border-radius:12px;
+  background:#101a33;
+  overflow:hidden;
+}
+#plane{
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size:40px;
+  transition: bottom 0.2s linear;
+}
+#multText{
+  position: absolute;
+  top:10px;
+  left:50%;
+  transform: translateX(-50%);
+  font-size:36px;
+}
+button{
+  padding:12px 25px;
+  font-size:18px;
+  margin:10px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+}
+.startBtn{background:#00ff99;color:#000;}
+.cashoutBtn{background:#ff3d00;color:#fff;}
+.footer{
+  margin-top:20px;
+  font-size:12px;
+  opacity:0.7;
+}
+</style>
+</head>
+
+<body>
+
+<header>🎮 Pro Aviator Demo</header>
+
+<div class="balance">Balance: <span id="bal">1000</span> Coins</div>
+
+<div class="game-container">
+  <div id="plane">✈️</div>
+  <div id="multText">x1.00</div>
+</div>
+
+<button class="startBtn" onclick="startGame()">START</button>
+<button class="cashoutBtn" onclick="cashOut()">CASH OUT</button>
+
+<div class="footer">⚠️ Demo only – No real money</div>
+
+<!-- Sound effects -->
+<audio id="startSound" src="start.mp3"></audio>
+<audio id="cashoutSound" src="cashout.mp3"></audio>
+<audio id="crashSound" src="crash.mp3"></audio>
+
+<script>
+let balance = 1000;
+let running = false;
+let multiplier = 1.0;
+let crashAt = 0;
+let interval;
+
+function startGame(){
+    if(running) return;
+    running = true;
+    multiplier = 1.0;
+    crashAt = (Math.random() * 5 + 1.5).toFixed(2); // crash 1.5–6.5x
+    document.getElementById("multText").innerText = "x"+multiplier.toFixed(2);
+    document.getElementById("plane").style.bottom = "0px";
+    document.getElementById("startSound").play();
+
+    interval = setInterval(() => {
+        multiplier += 0.1;
+        document.getElementById("multText").innerText = "x"+multiplier.toFixed(2);
+        let planeBottom = multiplier * 45; // plane rises smoothly
+        document.getElementById("plane").style.bottom = planeBottom+"px";
+
+        if(multiplier.toFixed(2) >= crashAt){
+            clearInterval(interval);
+            alert("💥 Crashed at x"+crashAt+"! You LOSE 100");
+            balance -= 100;
+            document.getElementById("bal").innerText = balance;
+            running = false;
+            document.getElementById("crashSound").play();
+        }
+    }, 200); // faster update for smooth animation
+}
+
+function cashOut(){
+    if(!running) return;
+    clearInterval(interval);
+    let win = Math.floor(100 * multiplier);
+    balance += win;
+    document.getElementById("bal").innerText = balance;
+    running = false;
+    alert("💰 Cashed out at x"+multiplier.toFixed(2)+"! You WIN "+win);
+    document.getElementById("cashoutSound").play();
+}
+</script>
+
+</body>
 </html>
+
+
+
